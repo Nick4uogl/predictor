@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Model Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Model Management</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Active Model Configuration</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.model_management') }}">
+                <div class="form-group">
+                    <label for="active_model">Select Active Model:</label>
+                    <select class="form-control" id="active_model" name="active_model">
+                        <option value="lstm" {% if active_model == 'lstm' %}selected{% endif %}>LSTM</option>
+                        <option value="xgboost" {% if active_model == 'xgboost' %}selected{% endif %}>XGBoost</option>
+                        <option value="prophet" {% if active_model == 'prophet' %}selected{% endif %}>Prophet</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Update Model</button>
+            </form>
+            
+            <form method="POST" action="{{ url_for('admin.reset_model_config') }}" class="mt-3">
+                <button type="submit" class="btn btn-secondary">Reset to Default (LSTM)</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2>Model Comparisons</h2>
+        </div>
+        <div class="card-body">
+            {% for city, comparison in comparisons.items() %}
+            <div class="mb-4">
+                <h3>{{ city }}</h3>
+                {% if comparison %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>MAE</th>
+                                <th>RMSE</th>
+                                <th>R2 Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model, metrics in comparison.items() %}
+                            <tr>
+                                <td>{{ model }}</td>
+                                <td>{{ metrics.mae|round(2) }}</td>
+                                <td>{{ metrics.rmse|round(2) }}</td>
+                                <td>{{ metrics.r2|round(2) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No comparison data available for {{ city }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
